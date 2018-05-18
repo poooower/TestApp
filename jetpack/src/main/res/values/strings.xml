@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">jetpack</string>
+    <string name="data_binding">Data Binding</string>
+</resources>

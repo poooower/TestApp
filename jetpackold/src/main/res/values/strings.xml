@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Jetpack</string>
+    <string name="double_backpress_tip">再次点击退出</string>
+    <string name="data_binding">Data Binding</string>
+</resources>
