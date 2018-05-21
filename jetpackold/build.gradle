@@ -36,7 +36,10 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation "com.android.support:preference-v7:27.1.1"
     implementation 'com.android.support.constraint:constraint-layout:1.1.0'
-    implementation "android.arch.navigation:navigation-fragment-ktx:$androidx_nav_version" // use -ktx for Kotlin
+    implementation "android.arch.navigation:navigation-fragment-ktx:$androidx_nav_version"
+    implementation "android.arch.lifecycle:runtime:$androidx_lifecycle_version"
+    implementation "android.arch.lifecycle:extensions:$androidx_lifecycle_version"
+    annotationProcessor "android.arch.lifecycle:compiler:$androidx_lifecycle_version"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'

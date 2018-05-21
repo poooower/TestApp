@@ -1,6 +1,10 @@
 package com.github.poooower.jetpack
 
-import android.databinding.DataBindingUtil
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.OnLifecycleEvent
+import android.arch.lifecycle.ViewModelProviders
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
@@ -9,6 +13,7 @@ import android.support.v7.preference.PreferenceFragmentCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.navigation.Navigation.findNavController
 import com.github.poooower.jetpack.databinding.FragmentDatabindingBinding
 
@@ -63,8 +68,26 @@ class DataBindingFragment : Fragment() {
 }
 
 class LifecycleFragment : Fragment() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifecycle.addObserver(LifeObserver(activity!!))
+
+        val userViewModel = ViewModelProviders.of(this).get(UserViewModel::class.java)
+//        userViewModel.getUser().observe(this) { user ->
+//
+//        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_lifecycle, container, false)
     }
-
 }
+
+class LifeObserver(private val mContext: Context) : LifecycleObserver {
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    fun start() {
+        Toast.makeText(mContext, "start now ~~~", Toast.LENGTH_SHORT).show()
+    }
+}
+
+

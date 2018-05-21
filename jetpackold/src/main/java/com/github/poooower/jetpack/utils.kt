@@ -2,6 +2,9 @@ package com.github.poooower.jetpack
 
 import android.widget.Toast
 import androidx.navigation.Navigation
+import java.util.concurrent.Executors
+
+val sExecutor = Executors.newCachedThreadPool()
 
 class DoubleBackController {
     private var mBackPressed = false
