@@ -56,8 +56,15 @@ class MainFragment : PreferenceFragmentCompat() {
 class DataBindingFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = FragmentDatabindingBinding.inflate(inflater, container, false)
-        binding.user = User("Wenjie", "Ying")
+        binding.user = User("First", "Last")
         return binding.root
+    }
+
+}
+
+class LifecycleFragment : Fragment() {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_lifecycle, container, false)
     }
 
 }

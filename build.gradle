@@ -6,8 +6,10 @@ buildscript {
     ext.androidx_nav_version = '1.0.0-alpha01'
 
     repositories {
-        google()
-        jcenter()
+//        google()
+//        jcenter()
+        maven{ url 'http://maven.aliyun.com/nexus/content/repositories/google'}
+        maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.0-alpha15'
@@ -21,8 +23,10 @@ buildscript {
 
 allprojects {
     repositories {
-        google()
-        jcenter()
+//        google()
+//        jcenter()
+        maven{ url 'http://maven.aliyun.com/nexus/content/repositories/google'}
+        maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
     }
 }
 

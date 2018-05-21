@@ -6,4 +6,9 @@
         android:title="@string/data_binding"
         android:widgetLayout="@id/action_mainFragment_to_databindingFragment"></Preference>
 
+    <Preference
+        android:persistent="false"
+        android:title="@string/lifecycle"
+        android:widgetLayout="@id/action_mainFragment_to_lifecycleFragment"></Preference>
+
 </PreferenceScreen>

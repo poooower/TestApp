@@ -11,6 +11,10 @@
         <action
             android:id="@+id/action_mainFragment_to_databindingFragment"
             app:destination="@id/databindingFragment"></action>
+
+        <action
+            android:id="@+id/action_mainFragment_to_lifecycleFragment"
+            app:destination="@id/lifecycleFragment"></action>
     </fragment>
 
     <fragment
@@ -18,5 +22,11 @@
         android:name="com.github.poooower.jetpack.DataBindingFragment"
         android:label="@string/data_binding"
         tools:layout="@layout/fragment_databinding" />
+
+    <fragment
+        android:id="@+id/lifecycleFragment"
+        android:name="com.github.poooower.jetpack.LifecycleFragment"
+        android:label="@string/lifecycle"
+        tools:layout="@layout/fragment_lifecycle" />
 
 </navigation>
