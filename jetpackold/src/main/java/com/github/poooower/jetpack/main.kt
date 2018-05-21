@@ -1,9 +1,6 @@
 package com.github.poooower.jetpack
 
-import android.arch.lifecycle.Lifecycle
-import android.arch.lifecycle.LifecycleObserver
-import android.arch.lifecycle.OnLifecycleEvent
-import android.arch.lifecycle.ViewModelProviders
+import android.arch.lifecycle.*
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -16,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.Navigation.findNavController
 import com.github.poooower.jetpack.databinding.FragmentDatabindingBinding
+import com.github.poooower.jetpack.databinding.FragmentLifecycleBinding
 
 class MainActivity : AppCompatActivity() {
 
@@ -68,18 +66,26 @@ class DataBindingFragment : Fragment() {
 }
 
 class LifecycleFragment : Fragment() {
+    var mBinding: FragmentLifecycleBinding? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lifecycle.addObserver(LifeObserver(activity!!))
 
         val userViewModel = ViewModelProviders.of(this).get(UserViewModel::class.java)
-//        userViewModel.getUser().observe(this) { user ->
-//
-//        }
+        userViewModel.getUser().observe(this, Observer {
+            mBinding?.user = it
+        })
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_lifecycle, container, false)
+        mBinding = FragmentLifecycleBinding.inflate(inflater, container, false)
+        return mBinding?.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        mBinding = null;
     }
 }
 
