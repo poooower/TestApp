@@ -8,25 +8,17 @@
         android:id="@+id/mainFragment"
         android:name="com.github.poooower.jetpack.MainFragment"
         android:label="@string/app_name">
-        <action
-            android:id="@+id/action_mainFragment_to_databindingFragment"
-            app:destination="@id/databindingFragment"></action>
 
         <action
-            android:id="@+id/action_mainFragment_to_lifecycleFragment"
-            app:destination="@id/lifecycleFragment"></action>
+            android:id="@+id/action_mainFragment_to_userListFragment"
+            app:destination="@id/userListFragment"></action>
     </fragment>
 
-    <fragment
-        android:id="@+id/databindingFragment"
-        android:name="com.github.poooower.jetpack.DataBindingFragment"
-        android:label="@string/data_binding"
-        tools:layout="@layout/fragment_databinding" />
 
     <fragment
-        android:id="@+id/lifecycleFragment"
-        android:name="com.github.poooower.jetpack.LifecycleFragment"
-        android:label="@string/lifecycle"
-        tools:layout="@layout/fragment_lifecycle" />
+        android:id="@+id/userListFragment"
+        android:name="com.github.poooower.jetpack.UserListFragment"
+        android:label="@string/user_list"
+        tools:layout="@layout/fragment_user_list" />
 
 </navigation>

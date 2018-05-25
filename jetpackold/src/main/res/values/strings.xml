@@ -1,6 +1,8 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Jetpack</string>
     <string name="double_backpress_tip">再次点击退出</string>
-    <string name="data_binding">Data Binding</string>
-    <string name="lifecycle">Lifecycle</string>
+    <string name="user_list">User List</string>
+    <string name="add_user">Add User</string>
+    <string name="del_user">Del User</string>
+    <string name="empty_user_list">Empty</string>
 </resources>

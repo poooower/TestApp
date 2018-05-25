@@ -3,6 +3,8 @@ package com.github.poooower.jetpack
 import android.arch.lifecycle.*
 import android.content.Context
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.preference.Preference
@@ -11,13 +13,36 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.navigation.Navigation
 import androidx.navigation.Navigation.findNavController
-import com.github.poooower.jetpack.databinding.FragmentDatabindingBinding
-import com.github.poooower.jetpack.databinding.FragmentLifecycleBinding
+import com.github.poooower.jetpack.databinding.FragmentUserListBinding
+import me.tatarka.bindingcollectionadapter2.ItemBinding
+
+class DoubleBackController {
+    private var backPressed = false
+    private val resetExitTask: Runnable by lazy(LazyThreadSafetyMode.NONE) { Runnable { backPressed = false } }
+    private val handler by lazy { Handler(Looper.getMainLooper()) }
+
+    fun onBackPressed(activity: MainActivity) {
+        val controller = Navigation.findNavController(activity, R.id.main_nav_host_fragment)
+        if (controller.currentDestination.id == R.id.mainFragment) {
+            if (!backPressed) {
+                backPressed = true;
+                handler.removeCallbacks(resetExitTask);
+                handler.postDelayed(resetExitTask, 1000);
+                Toast.makeText(activity, R.string.double_backpress_tip, Toast.LENGTH_SHORT).show();
+            } else {
+                activity.onSuperBackPressed()
+            }
+            return
+        }
+        activity.onSuperBackPressed()
+    }
+}
 
 class MainActivity : AppCompatActivity() {
 
-    private val mDoubleBack = DoubleBackController()
+    private val doubleBack = DoubleBackController()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,7 +50,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        mDoubleBack.onBackPressed(this)
+        doubleBack.onBackPressed(this)
     }
 
     fun onSuperBackPressed() {
@@ -56,43 +81,52 @@ class MainFragment : PreferenceFragmentCompat() {
     }
 }
 
-class DataBindingFragment : Fragment() {
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = FragmentDatabindingBinding.inflate(inflater, container, false)
-        binding.user = User("First", "Last")
-        return binding.root
+class UserListFragment : Fragment() {
+    @Suppress("MemberVisibilityCanBePrivate")
+    lateinit var userViewModel: UserViewModel
+    @Suppress("MemberVisibilityCanBePrivate")
+    val itemBinding: ItemBinding<User> = ItemBinding.of { itemBinding, position, _ ->
+        if (position % 2 == 0) {
+            itemBinding.set(BR.item, R.layout.item_for_user_list)
+        } else {
+            itemBinding.set(BR.item, R.layout.item_for_user_list_1)
+        }
     }
-
-}
-
-class LifecycleFragment : Fragment() {
-    var mBinding: FragmentLifecycleBinding? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lifecycle.addObserver(LifeObserver(activity!!))
 
-        val userViewModel = ViewModelProviders.of(this).get(UserViewModel::class.java)
-        userViewModel.getUser().observe(this, Observer {
-            mBinding?.user = it
-        })
+        userViewModel = ViewModelProviders.of(this).get(UserViewModel::class.java)
+        userViewModel.init()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mBinding = FragmentLifecycleBinding.inflate(inflater, container, false)
-        return mBinding?.root
+        val binding = FragmentUserListBinding.inflate(inflater, container, false)
+        binding.let {
+            it.fragment = this
+            it.itemBinding = itemBinding
+            it.userViewModel = userViewModel
+            it.setLifecycleOwner(this)
+        }
+        return binding.root
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        mBinding = null;
+    fun addUser(view: View) {
+        userViewModel.addUser()
+        Toast.makeText(view.context, "addUser ~~~", Toast.LENGTH_SHORT).show()
+    }
+
+    fun delUser() {
+        userViewModel.deleteUser()
+        Toast.makeText(activity, "delUser ~~~", Toast.LENGTH_SHORT).show()
     }
 }
 
-class LifeObserver(private val mContext: Context) : LifecycleObserver {
+class LifeObserver(private val context: Context) : LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun start() {
-        Toast.makeText(mContext, "start now ~~~", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "start now ~~~", Toast.LENGTH_SHORT).show()
     }
 }
 

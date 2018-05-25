@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <import type="me.tatarka.bindingcollectionadapter2.LayoutManagers" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="fragment"
+            type="com.github.poooower.jetpack.UserListFragment" />
+
+        <variable
+            name="itemBinding"
+            type="me.tatarka.bindingcollectionadapter2.ItemBinding&lt;com.github.poooower.jetpack.User&gt;" />
+
+        <variable
+            name="userViewModel"
+            type="com.github.poooower.jetpack.UserViewModel" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            app:visibilityWithFade="@{!userViewModel.users.isLoading() ? View.VISIBLE : View.GONE}">
+
+            <LinearLayout
+                android:id="@+id/btn_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true">
+
+                <Button
+                    android:id="@android:id/button1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:onClick="@{fragment::addUser}"
+                    android:text="@string/add_user" />
+
+                <Button
+                    android:id="@android:id/button2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+
+                    android:layout_weight="1"
+                    android:onClick="@{()->userViewModel.deleteUser()}"
+                    android:text="@string/del_user" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_centerInParent="true"
+                android:text="@string/empty_user_list"
+                android:visibility="@{userViewModel.users.data.isEmpty() ? View.VISIBLE : View.GONE}" />
+
+            <android.support.v7.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@id/btn_container"
+                android:visibility="@{!userViewModel.users.data.isEmpty() ? View.VISIBLE : View.GONE}"
+                app:itemBinding="@{itemBinding}"
+                app:items="@{userViewModel.users.data}"
+                app:layoutManager="@{LayoutManagers.linear()}" />
+
+        </RelativeLayout>
+
+        <ProgressBar
+            style="@style/Widget.AppCompat.ProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:visibilityWithFade="@{userViewModel.users.isLoading() ? View.VISIBLE : View.GONE}"/>
+    </FrameLayout>
+</layout>

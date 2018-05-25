@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <Preference
-        android:persistent="false"
-        android:title="@string/data_binding"
-        android:widgetLayout="@id/action_mainFragment_to_databindingFragment"></Preference>
 
     <Preference
         android:persistent="false"
-        android:title="@string/lifecycle"
-        android:widgetLayout="@id/action_mainFragment_to_lifecycleFragment"></Preference>
+        android:title="@string/user_list"
+        android:widgetLayout="@id/action_mainFragment_to_userListFragment"></Preference>
 
 </PreferenceScreen>
