@@ -1,6 +1,7 @@
 package com.github.poooower.jetpack
 
 import android.arch.lifecycle.LiveData
+import android.arch.paging.DataSource
 import android.arch.persistence.room.*
 import android.content.Context
 
@@ -26,4 +27,7 @@ interface UserDao {
 
     @Query("SELECT * FROM user WHERE id = :id")
     fun findUser(id: Int): LiveData<User>
+
+    @Query("SELECT * FROM user")
+    fun findPageUsers(): DataSource.Factory<Int, User>
 }

@@ -6,7 +6,7 @@ import android.arch.persistence.room.PrimaryKey
 import android.support.annotation.NonNull
 
 @Entity(tableName = "user")
-data class User(
+data class  User(
         @PrimaryKey(autoGenerate = true)
         @NonNull
         @ColumnInfo(name = "id")

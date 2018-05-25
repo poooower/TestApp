@@ -43,6 +43,7 @@ dependencies {
     kapt "android.arch.lifecycle:compiler:$androidx_lifecycle_version"
     implementation "android.arch.persistence.room:runtime:$androidx_room_version"
     kapt "android.arch.persistence.room:compiler:$androidx_room_version"
+    implementation "android.arch.paging:runtime:$androidx_paging_version"
     implementation 'me.tatarka.bindingcollectionadapter2:bindingcollectionadapter:2.3.0-beta1'
     implementation 'me.tatarka.bindingcollectionadapter2:bindingcollectionadapter-recyclerview:2.3.0-beta1'
 
