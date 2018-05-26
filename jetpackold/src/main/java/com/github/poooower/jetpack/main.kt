@@ -1,10 +1,11 @@
 package com.github.poooower.jetpack
 
-import android.arch.lifecycle.*
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.OnLifecycleEvent
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.preference.Preference
@@ -13,48 +14,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.navigation.Navigation
 import androidx.navigation.Navigation.findNavController
 import com.github.poooower.jetpack.databinding.FragmentUserListBinding
 import me.tatarka.bindingcollectionadapter2.ItemBinding
 
-class DoubleBackController {
-    private var backPressed = false
-    private val resetExitTask: Runnable by lazy(LazyThreadSafetyMode.NONE) { Runnable { backPressed = false } }
-    private val handler by lazy { Handler(Looper.getMainLooper()) }
-
-    fun onBackPressed(activity: MainActivity) {
-        val controller = Navigation.findNavController(activity, R.id.main_nav_host_fragment)
-        if (controller.currentDestination.id == R.id.mainFragment) {
-            if (!backPressed) {
-                backPressed = true;
-                handler.removeCallbacks(resetExitTask);
-                handler.postDelayed(resetExitTask, 1000);
-                Toast.makeText(activity, R.string.double_backpress_tip, Toast.LENGTH_SHORT).show();
-            } else {
-                activity.onSuperBackPressed()
-            }
-            return
-        }
-        activity.onSuperBackPressed()
-    }
-}
 
 class MainActivity : AppCompatActivity() {
-
-    private val doubleBack = DoubleBackController()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-    }
-
-    override fun onBackPressed() {
-        doubleBack.onBackPressed(this)
-    }
-
-    fun onSuperBackPressed() {
-        super.onBackPressed()
     }
 }
 
@@ -82,9 +51,9 @@ class MainFragment : PreferenceFragmentCompat() {
 }
 
 class UserListFragment : Fragment() {
-    @Suppress("MemberVisibilityCanBePrivate")
-    lateinit var userViewModel: UserViewModel
-    @Suppress("MemberVisibilityCanBePrivate")
+    val userViewModel: UserViewModel by lazy(LazyThreadSafetyMode.NONE) {
+        ViewModelProviders.of(this).get(UserViewModel::class.java)
+    }
     val itemBinding: ItemBinding<User> = ItemBinding.of { itemBinding, position, _ ->
         if (position % 2 == 0) {
             itemBinding.set(BR.item, R.layout.item_for_user_list)
@@ -96,9 +65,6 @@ class UserListFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lifecycle.addObserver(LifeObserver(activity!!))
-
-        userViewModel = ViewModelProviders.of(this).get(UserViewModel::class.java)
-        userViewModel.init()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

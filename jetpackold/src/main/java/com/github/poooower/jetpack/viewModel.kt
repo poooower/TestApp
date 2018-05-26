@@ -2,7 +2,11 @@ package com.github.poooower.jetpack
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
-import android.arch.lifecycle.MediatorLiveData
+import android.arch.lifecycle.LiveData
+import android.arch.lifecycle.Transformations
+import android.arch.paging.DataSource
+import android.arch.paging.LivePagedListBuilder
+import android.arch.paging.PagedList
 
 
 val AndroidViewModel.appDatabase
@@ -11,44 +15,36 @@ val AndroidViewModel.userDao
     get() = appDatabase.userDao()
 
 class UserViewModel(app: Application) : AndroidViewModel(app) {
-    private val taskHolder: TaskHolder by lazy { TaskHolder() }
 
-    val users: MediatorLiveData<StateData<List<User>>> by lazy {
-        val u = MediatorLiveData<StateData<List<User>>>()
-        u.value = StateData()
-        return@lazy u
+    val users: LiveData<StateData<List<User>>> by lazy {
+        Transformations.map(userDao.findUsers()) {
+            StateData(it, State.OK, "")
+        }
     }
 
-    fun init() {
-        loadUsers()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        taskHolder.cancelAll()
-    }
-
-    private fun loadUsers() {
-        users.update(state = State.LOADING)
-        background {
-            Thread.sleep(3000)
-            return@background userDao.findUsers()
-        }.ui {
-            users.addSource(it, state = State.OK)
-        }.start(taskHolder, "loadUsers")
-    }
-
-    fun addUser() {
-        background {
-            userDao.insert(User(firstName = "first", lastName = "last"))
-        }.start()
+    fun addUser() = io {
+        userDao.insert(User(firstName = "first", lastName = "last"))
     }
 
     fun deleteUser() {
         users.value?.data?.firstOrNull()?.id?.let {
-            background {
+            io {
                 userDao.deleteUser(it)
-            }.start()
+            }
         }
+    }
+
+    fun findUsersByPage() {
+        val dataSource: DataSource.Factory<Int, User> =
+                userDao.findPageUsers()
+
+//        val myPagingConfig = PagedList.Config.Builder()
+//                .setPageSize(50)
+//                .setPrefetchDistance(150)
+//                .setEnablePlaceholders(true)
+//                .build()
+
+        val pagedList = LivePagedListBuilder(dataSource, 20)
+                .build()
     }
 }

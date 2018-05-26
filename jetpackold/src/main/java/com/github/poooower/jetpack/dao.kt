@@ -20,7 +20,7 @@ interface UserDao {
     fun insert(user: User)
 
     @Query("DELETE FROM user WHERE id = :id")
-    fun deleteUser(id: Long)
+    fun deleteUser(id: Int)
 
     @Query("SELECT * FROM user")
     fun findUsers(): LiveData<List<User>>

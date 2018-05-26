@@ -10,7 +10,7 @@ data class  User(
         @PrimaryKey(autoGenerate = true)
         @NonNull
         @ColumnInfo(name = "id")
-        var id: Long? = null,
+        var id: Int? = null,
         @ColumnInfo(name = "first_name")
         var firstName: String? = null,
         @ColumnInfo(name = "last_name")
