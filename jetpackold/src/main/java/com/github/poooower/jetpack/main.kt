@@ -16,7 +16,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.Navigation.findNavController
 import com.github.poooower.jetpack.databinding.FragmentUserListBinding
-import me.tatarka.bindingcollectionadapter2.ItemBinding
 
 
 class MainActivity : AppCompatActivity() {
@@ -54,13 +53,12 @@ class UserListFragment : Fragment() {
     val userViewModel: UserViewModel by lazy(LazyThreadSafetyMode.NONE) {
         ViewModelProviders.of(this).get(UserViewModel::class.java)
     }
-    val itemBinding: ItemBinding<User> = ItemBinding.of { itemBinding, position, _ ->
-        if (position % 2 == 0) {
-            itemBinding.set(BR.item, R.layout.item_for_user_list)
-        } else {
-            itemBinding.set(BR.item, R.layout.item_for_user_list_1)
+    val swipeListener = object : Function1<Int, Unit> {
+        override fun invoke(p1: Int) {
+            delUser(p1)
         }
     }
+    val itemBR = BR.item
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,8 +69,6 @@ class UserListFragment : Fragment() {
         val binding = FragmentUserListBinding.inflate(inflater, container, false)
         binding.let {
             it.fragment = this
-            it.itemBinding = itemBinding
-            it.userViewModel = userViewModel
             it.setLifecycleOwner(this)
         }
         return binding.root
@@ -83,8 +79,8 @@ class UserListFragment : Fragment() {
         Toast.makeText(view.context, "addUser ~~~", Toast.LENGTH_SHORT).show()
     }
 
-    fun delUser() {
-        userViewModel.deleteUser()
+    fun delUser(pos: Int) {
+        userViewModel.deleteUser(pos)
         Toast.makeText(activity, "delUser ~~~", Toast.LENGTH_SHORT).show()
     }
 }
