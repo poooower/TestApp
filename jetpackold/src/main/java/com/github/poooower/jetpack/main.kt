@@ -67,10 +67,8 @@ class UserListFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = FragmentUserListBinding.inflate(inflater, container, false)
-        binding.let {
-            it.fragment = this
-            it.setLifecycleOwner(this)
-        }
+        binding.fragment = this
+        binding.setLifecycleOwner(this)
         return binding.root
     }
 
