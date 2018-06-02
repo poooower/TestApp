@@ -1,44 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:bind="http://schemas.android.com/tools">
 
     <data>
 
+        <import type="android.view.View"/>
         <variable
             name="fragment"
             type="com.github.poooower.jetpack.UserListFragment"/>
 
     </data>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <android.support.v4.widget.SwipeRefreshLayout android:layout_width="match_parent"
+                                                  android:layout_height="match_parent"
+                                                  app:isRefreshing="@{fragment.userViewModel.state.isLoading}"
+                                                  app:onRefreshListener="@{fragment.onRefreshListener}">
 
-        <LinearLayout
-            android:id="@+id/btn_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true">
-
-            <Button
-                android:id="@android:id/button1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="@{fragment::addUser}"
-                android:text="@string/add_user"/>
-
-        </LinearLayout>
-
-
-        <android.support.v7.widget.RecyclerView
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@id/btn_container"
-            app:itemBR="@{fragment.itemBR}"
-            app:itemLayout="@{@layout/item_for_user_list}"
-            app:list="@{fragment.userViewModel.users}"
-            app:swipeListener="@{fragment.swipeListener}"/>
+            android:visibility="gone"
+            app:visibilityWithFade="@{fragment.userViewModel.state.isShowContent || !fragment.userViewModel.list.isEmpty() ? View.VISIBLE : View.GONE}">
 
-    </RelativeLayout>
+            <LinearLayout
+                android:id="@+id/btn_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true">
+
+                <Button
+                    android:id="@android:id/button1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:onClick="@{fragment::addUser}"
+                    android:text="@string/add_user"/>
+
+            </LinearLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_above="@id/btn_container"
+                app:itemBinder="@{fragment.itemBinder}"
+                app:list="@{fragment.userViewModel.list}"
+                app:moreClicker="@{fragment.moreClicker}"
+                app:state="@{fragment.userViewModel.state}"
+                app:swipeListener="@{fragment.swipeListener}"/>
+
+
+        </RelativeLayout>
+
+        <include layout="@layout/poco_load_state_layout"
+                 bind:hasContent="@{!fragment.userViewModel.list.isEmpty()}"
+                 bind:state="@{fragment.userViewModel.state}"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
 </layout>

@@ -1,2 +1,2 @@
 //include ':app', ':jetpack', ':jetpackold'
-include ':jetpackold'
+include ':jetpackold', ':common'

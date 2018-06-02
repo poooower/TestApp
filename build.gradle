@@ -15,9 +15,10 @@ buildscript {
 //        jcenter()
         maven{ url 'http://maven.aliyun.com/nexus/content/repositories/google'}
         maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.0-alpha15'
+        classpath 'com.android.tools.build:gradle:3.2.0-alpha16'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:$androidx_nav_version"
 

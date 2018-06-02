@@ -1,5 +1,6 @@
 package com.github.poooower.jetpack
 
+import android.app.Application
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.OnLifecycleEvent
@@ -7,6 +8,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.preference.Preference
 import android.support.v7.preference.PreferenceFragmentCompat
@@ -15,8 +17,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.Navigation.findNavController
+import com.github.poooower.common.ItemBinder
+import com.github.poooower.common.app
 import com.github.poooower.jetpack.databinding.FragmentUserListBinding
 
+
+class App : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        app = this
+    }
+}
 
 class MainActivity : AppCompatActivity() {
 
@@ -58,7 +69,19 @@ class UserListFragment : Fragment() {
             delUser(p1)
         }
     }
-    val itemBR = BR.item
+
+    val onRefreshListener = SwipeRefreshLayout.OnRefreshListener {
+        userViewModel.refresh()
+    }
+
+    val moreClicker = View.OnClickListener {
+        userViewModel.loadMore()
+    }
+
+    val itemBinder = object : ItemBinder {
+        override fun itemLayout(pos: Int) = if (pos % 2 == 0) R.layout.item_for_user_list else R.layout.item_for_user_list_1
+        override fun itemBR(pos: Int) = BR.item
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

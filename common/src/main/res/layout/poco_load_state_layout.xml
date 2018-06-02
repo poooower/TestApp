@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingDefaultResource">
+
+    <data>
+
+        <import type="android.view.View"/>
+        <import type="com.github.poooower.common.State"/>
+        <variable
+            name="state"
+            type="com.github.poooower.common.State"/>
+
+        <variable
+            name="hasContent"
+            type="Boolean"/>
+
+    </data>
+    <FrameLayout android:layout_width="match_parent"
+                 android:layout_height="match_parent" android:visibility="gone"
+                 app:visibility="@{(!state.isShowContent &amp;&amp; !hasContent) ? View.VISIBLE : View.GONE}">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:layout_gravity="center"
+                  android:text="@{state.message}"
+                  android:visibility="gone"
+                  app:visibilityWithFade="@{state.isLoadErr ? View.VISIBLE : View.INVISIBLE}"/>
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+                  android:layout_gravity="center"
+                  android:text="@{state.message}"
+                  android:visibility="gone"
+                  app:visibilityWithFade="@{state.isEmpty ? View.VISIBLE : View.INVISIBLE}"/>
+        <ProgressBar style="@style/Widget.AppCompat.ProgressBar" android:layout_width="wrap_content"
+                     android:layout_height="wrap_content" android:layout_gravity="center"
+                     app:visibilityWithFade="@{state.isLoading ? View.VISIBLE : View.INVISIBLE}"/>
+    </FrameLayout>
+</layout>

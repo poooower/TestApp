@@ -1,0 +1,7 @@
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="ExtraTranslation">
+    <string name="poco_loading">加载中…</string>
+    <string name="poco_error">加载出错</string>
+    <string name="poco_empty">无数据</string>
+    <string name="poco_loading_more">正在加载更多…</string>
+    <string name="poco_no_more">没有更多数据</string>
+</resources>
