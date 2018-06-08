@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.arch.paging.PagedList
 import android.databinding.BindingAdapter
 import android.databinding.adapters.TextViewBindingAdapter
+import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentManager
 import android.support.v4.view.ViewCompat
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
@@ -11,6 +13,8 @@ import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.View
 import android.widget.TextView
+
+val bindingTag = Object()
 
 @BindingAdapter("visibilityWithFade")
 fun setVisibilityWithFade(view: View, visibility: Int) {
@@ -81,5 +85,14 @@ fun setText(textView: TextView, text: Function0<CharSequence>?) {
 fun setIsRefreshing(refreshLayout: SwipeRefreshLayout, isRefreshing: Boolean) {
     if (refreshLayout.isRefreshing != isRefreshing) {
         refreshLayout.isRefreshing = isRefreshing
+    }
+}
+
+@BindingAdapter(value = ["fragmentManager", "bottomNavigationViewId", "fragments"], requireAll = true)
+fun setFragmentTabs(fragmentTabs: FragmentTabs, fragmentManager: FragmentManager, bottomNavigationViewId: Int, fragments: Array<Class<out Fragment>>) {
+    if (fragmentTabs.fragmentManager == null) {
+        fragmentTabs.fragmentManager = fragmentManager
+        fragmentTabs.fragments = fragments
+        fragmentTabs.bottomNavigationViewId = bottomNavigationViewId
     }
 }

@@ -35,6 +35,7 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "com.android.support:appcompat-v7:$support_version"
+    implementation "com.android.support:design:$support_version"
     implementation "com.android.support:preference-v7:$support_version"
     implementation "com.android.support.constraint:constraint-layout:$constraint_version"
     implementation "android.arch.navigation:navigation-fragment-ktx:$androidx_nav_version"

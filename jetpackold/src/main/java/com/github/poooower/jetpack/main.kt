@@ -6,6 +6,7 @@ import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.OnLifecycleEvent
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
+import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
@@ -19,7 +20,10 @@ import android.widget.Toast
 import androidx.navigation.Navigation.findNavController
 import com.github.poooower.common.ItemBinder
 import com.github.poooower.common.app
+import com.github.poooower.jetpack.databinding.ActivityMainBinding
 import com.github.poooower.jetpack.databinding.FragmentUserListBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class App : Application() {
@@ -31,9 +35,14 @@ class App : Application() {
 
 class MainActivity : AppCompatActivity() {
 
+    val fragments: Array<Class<out Fragment>> = arrayOf(MainFragment::class.java, DiscoverFragment::class.java, MeFragment::class.java)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
+        binding.mainActivity = this
+        setSupportActionBar(findViewById(R.id.toolbar))
     }
 }
 
@@ -110,6 +119,44 @@ class LifeObserver(private val context: Context) : LifecycleObserver {
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun start() {
         Toast.makeText(context, "start now ~~~", Toast.LENGTH_SHORT).show()
+    }
+}
+
+class DiscoverFragment : Fragment() {
+    var timeStr = ""
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        timeStr = savedInstanceState?.getString("time") ?: SimpleDateFormat("yyyy-MM-dd hh:mm::ss").format(Calendar.getInstance().time)
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        println("DiscoverFragment XXXXX$timeStr")
+        return inflater.inflate(R.layout.fragment_discover, container, false)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("time",timeStr )
+    }
+}
+
+class MeFragment : Fragment() {
+    var timeStr = ""
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        timeStr = savedInstanceState?.getString("time") ?: SimpleDateFormat("yyyy-MM-dd hh:mm::ss").format(Calendar.getInstance().time)
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        println("MeFragment XXXXX$timeStr")
+        return inflater.inflate(R.layout.fragment_me, container, false)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString("time",timeStr )
     }
 }
 

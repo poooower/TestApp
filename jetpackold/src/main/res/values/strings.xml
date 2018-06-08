@@ -5,4 +5,7 @@
     <string name="add_user">Add User</string>
     <string name="del_user">Del User</string>
     <string name="empty_user_list">Empty</string>
+    <string name="homepage">主页</string>
+    <string name="discover">发现</string>
+    <string name="me">我的</string>
 </resources>
