@@ -1,12 +1,13 @@
 package com.github.poooower.jetpack
 
+import android.animation.Animator
+import android.animation.AnimatorInflater
 import android.app.Application
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.OnLifecycleEvent
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
-import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
@@ -16,11 +17,13 @@ import android.support.v7.preference.PreferenceFragmentCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.navigation.Navigation.findNavController
+import androidx.navigation.navOptions
 import com.github.poooower.common.ItemBinder
 import com.github.poooower.common.app
-import com.github.poooower.jetpack.databinding.ActivityMainBinding
+import com.github.poooower.jetpack.databinding.FragmentMainBinding
 import com.github.poooower.jetpack.databinding.FragmentUserListBinding
 import java.text.SimpleDateFormat
 import java.util.*
@@ -33,20 +36,33 @@ class App : Application() {
     }
 }
 
-class MainActivity : AppCompatActivity() {
-
-    val fragments: Array<Class<out Fragment>> = arrayOf(MainFragment::class.java, DiscoverFragment::class.java, MeFragment::class.java)
-
+class MainActivity : AppCompatActivity(), ViewTreeObserver.OnPreDrawListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val binding = DataBindingUtil.setContentView<ActivityMainBinding>(this, R.layout.activity_main)
-        binding.mainActivity = this
-        setSupportActionBar(findViewById(R.id.toolbar))
+        window.decorView.viewTreeObserver.addOnPreDrawListener(this)
+    }
+
+    override fun onPreDraw(): Boolean {
+        window.setBackgroundDrawable(null)
+        window.decorView.viewTreeObserver.removeOnPreDrawListener(this)
+        return true
     }
 }
 
-class MainFragment : PreferenceFragmentCompat() {
+class MainFragment : Fragment() {
+    val fragments: Array<Class<out Fragment>> = arrayOf(HomeFragment::class.java, DiscoverFragment::class.java, MeFragment::class.java)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = FragmentMainBinding.inflate(inflater, container, false).let {
+        it.mainFragment = this
+        return it.root
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+    }
+}
+
+class HomeFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.pref_main, rootKey)
@@ -61,11 +77,25 @@ class MainFragment : PreferenceFragmentCompat() {
         val actionId = preference?.extras?.getInt("actionId", 0)
         actionId?.let {
             if (actionId != 0) {
-                findNavController(this.view!!).navigate(actionId)
+                findNavController(this.view!!).navigate(actionId, null, navOptions {
+                    anim {
+                        enter = R.anim.slide_out_right
+                        exit = R.animator.stay
+                        popEnter = R.animator.stay
+                        popExit = R.anim.slide_out_right
+                    }
+                })
                 return true
             }
         }
         return super.onPreferenceTreeClick(preference)
+    }
+
+    override fun onCreateAnimator(transit: Int, enter: Boolean, nextAnim: Int): Animator? {
+        if (!enter && parentFragment?.isRemoving == true) {
+            return AnimatorInflater.loadAnimator(app, R.animator.stay)
+        }
+        return super.onCreateAnimator(transit, enter, nextAnim)
     }
 }
 
@@ -137,7 +167,7 @@ class DiscoverFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString("time",timeStr )
+        outState.putString("time", timeStr)
     }
 }
 
@@ -156,7 +186,7 @@ class MeFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putString("time",timeStr )
+        outState.putString("time", timeStr)
     }
 }
 
