@@ -4,9 +4,13 @@ import android.annotation.SuppressLint
 import android.arch.paging.PagedList
 import android.databinding.BindingAdapter
 import android.databinding.adapters.TextViewBindingAdapter
+import android.os.Bundle
+import android.support.design.widget.BottomNavigationView
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
+import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v4.view.ViewCompat
+import android.support.v4.view.ViewPager
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -88,11 +92,47 @@ fun setIsRefreshing(refreshLayout: SwipeRefreshLayout, isRefreshing: Boolean) {
     }
 }
 
-@BindingAdapter(value = ["fragmentManager", "bottomNavigationViewId", "fragments"], requireAll = true)
-fun setFragmentTabs(fragmentTabs: FragmentTabs, fragmentManager: FragmentManager, bottomNavigationViewId: Int, fragments: Array<Class<out Fragment>>) {
-    if (fragmentTabs.fragmentManager == null) {
-        fragmentTabs.fragmentManager = fragmentManager
-        fragmentTabs.fragments = fragments
-        fragmentTabs.bottomNavigationViewId = bottomNavigationViewId
+@BindingAdapter(value = ["fragmentManager", "fragments", "fragmentArgs"], requireAll = true)
+fun setFragmentTabs(bottomNavigationView: BottomNavigationView, fragmentManager: FragmentManager, fragments: Array<Class<out Fragment>>, fragmentArgs: Array<Bundle>?) {
+    bottomNavigationView.parent?.let {
+        val tabHost = (it as View).findViewById<FragmentTabHostForDataBinding>(android.R.id.tabhost)
+        if (tabHost.tabWidget != null) {
+            return
+        }
+
+        with(tabHost) {
+            setup(context, fragmentManager, android.R.id.tabcontent)
+            for ((i, f) in fragments.withIndex()) {
+                addTab(newTabSpec("maintab_${f.name}").setIndicator(View(context)), f, fragmentArgs?.getOrNull(i))
+            }
+            finishIfNeedRestore()
+        }
+        val menu = bottomNavigationView.menu
+        bottomNavigationView.setOnNavigationItemSelectedListener {
+            for (i in 0 until (Math.min(menu.size(), fragments?.size ?: 0))) {
+                if (it === menu.getItem(i)) {
+                    tabHost.currentTab = i
+                    break
+                }
+            }
+            true
+        }
     }
+}
+
+@BindingAdapter(value = ["fragmentManager", "titles", "fragments", "fragmentArgs"], requireAll = true)
+fun setFragmentViewPagerAdapter(viewPager: ViewPager, fragmentManager: FragmentManager, titles: Array<String>?, fragments: Array<Class<out Fragment>>, fragmentArgs: Array<Bundle>?) {
+    if (viewPager.adapter == null) {
+        viewPager.adapter = object : FragmentStatePagerAdapter(fragmentManager) {
+            override fun getItem(position: Int) = fragments.getOrNull(position)?.newInstance()?.let {
+                it.arguments = fragmentArgs?.getOrNull(position)
+                it
+            } ?: null
+
+            override fun getCount(): Int = fragments.size
+
+            override fun getPageTitle(position: Int): CharSequence? = titles?.getOrNull(position)
+        }
+    }
+
 }

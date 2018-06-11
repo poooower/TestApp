@@ -3,6 +3,7 @@ package com.github.poooower.common
 import android.annotation.SuppressLint
 import android.arch.core.executor.ArchTaskExecutor
 import android.os.AsyncTask
+import android.view.View
 
 open class Singleton<out T, in A>(private val creator: (A) -> T) {
     @Volatile
@@ -26,5 +27,10 @@ fun io(io: () -> Unit) {
 fun ui(ui: () -> Unit) {
     ArchTaskExecutor.getInstance().executeOnMainThread(ui)
 }
+
+fun oneShortPreDraw(view: View, task: () -> Unit) {
+    android.support.v4.app.oneShortPreDraw(view, task)
+}
+
 
 

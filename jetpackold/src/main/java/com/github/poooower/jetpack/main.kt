@@ -17,16 +17,15 @@ import android.support.v7.preference.PreferenceFragmentCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.navOptions
 import com.github.poooower.common.ItemBinder
 import com.github.poooower.common.app
+import com.github.poooower.common.oneShortPreDraw
+import com.github.poooower.jetpack.databinding.FragmentHomeBinding
 import com.github.poooower.jetpack.databinding.FragmentMainBinding
 import com.github.poooower.jetpack.databinding.FragmentUserListBinding
-import java.text.SimpleDateFormat
-import java.util.*
 
 
 class App : Application() {
@@ -36,17 +35,13 @@ class App : Application() {
     }
 }
 
-class MainActivity : AppCompatActivity(), ViewTreeObserver.OnPreDrawListener {
+class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        window.decorView.viewTreeObserver.addOnPreDrawListener(this)
-    }
-
-    override fun onPreDraw(): Boolean {
-        window.setBackgroundDrawable(null)
-        window.decorView.viewTreeObserver.removeOnPreDrawListener(this)
-        return true
+        oneShortPreDraw(window.decorView) {
+            window.setBackgroundDrawable(null)
+        }
     }
 }
 
@@ -56,18 +51,43 @@ class MainFragment : Fragment() {
         it.mainFragment = this
         return it.root
     }
+}
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
+class HomeFragment : Fragment() {
+    val titles: Array<String> = Array(10) {
+        "Title$it"
+    }
+
+    val arguments: Array<Bundle> = Array(10) {
+        val args = Bundle()
+        args.putString("pageIndex", "$it")
+        args
+    }
+
+    val fragments: Array<Class<out Fragment>> = Array(10) {
+        HomePageFragment::class.java
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = FragmentHomeBinding.inflate(inflater, container, false).let {
+        it.homeFragment = this
+        return it.root
+    }
+
+    override fun onCreateAnimator(transit: Int, enter: Boolean, nextAnim: Int): Animator? {
+        if (!enter && parentFragment?.isRemoving == true) {
+            return AnimatorInflater.loadAnimator(app, R.animator.stay)
+        }
+        return super.onCreateAnimator(transit, enter, nextAnim)
     }
 }
 
-class HomeFragment : PreferenceFragmentCompat() {
+class HomePageFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.pref_main, rootKey)
         for (i in 0 until preferenceScreen.preferenceCount) {
             val preference = preferenceScreen.getPreference(i)
+            preference.title = "$i.${preference.title}${arguments?.get("pageIndex") ?: ""}"
             preference.extras.putInt("actionId", preference.widgetLayoutResource)
             preference.widgetLayoutResource = 0
         }
@@ -75,9 +95,11 @@ class HomeFragment : PreferenceFragmentCompat() {
 
     override fun onPreferenceTreeClick(preference: Preference?): Boolean {
         val actionId = preference?.extras?.getInt("actionId", 0)
-        actionId?.let {
-            if (actionId != 0) {
-                findNavController(this.view!!).navigate(actionId, null, navOptions {
+                ?: 0
+        return when (actionId) {
+            0 -> super.onPreferenceTreeClick(preference)
+            else -> view?.let {
+                findNavController(it).navigate(actionId, null, navOptions {
                     anim {
                         enter = R.anim.slide_out_right
                         exit = R.animator.stay
@@ -85,10 +107,9 @@ class HomeFragment : PreferenceFragmentCompat() {
                         popExit = R.anim.slide_out_right
                     }
                 })
-                return true
-            }
+                true
+            } ?: true
         }
-        return super.onPreferenceTreeClick(preference)
     }
 
     override fun onCreateAnimator(transit: Int, enter: Boolean, nextAnim: Int): Animator? {
@@ -153,40 +174,14 @@ class LifeObserver(private val context: Context) : LifecycleObserver {
 }
 
 class DiscoverFragment : Fragment() {
-    var timeStr = ""
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        timeStr = savedInstanceState?.getString("time") ?: SimpleDateFormat("yyyy-MM-dd hh:mm::ss").format(Calendar.getInstance().time)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        println("DiscoverFragment XXXXX$timeStr")
         return inflater.inflate(R.layout.fragment_discover, container, false)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString("time", timeStr)
     }
 }
 
 class MeFragment : Fragment() {
-    var timeStr = ""
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        timeStr = savedInstanceState?.getString("time") ?: SimpleDateFormat("yyyy-MM-dd hh:mm::ss").format(Calendar.getInstance().time)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        println("MeFragment XXXXX$timeStr")
         return inflater.inflate(R.layout.fragment_me, container, false)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putString("time", timeStr)
     }
 }
 

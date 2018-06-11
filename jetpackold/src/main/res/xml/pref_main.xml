@@ -6,5 +6,65 @@
         android:persistent="false"
         android:title="@string/user_list"
         android:widgetLayout="@id/action_mainFragment_to_userListFragment"></Preference>
+    <Preference
+        android:persistent="false"
+        android:title="@string/user_list"
+        android:widgetLayout="@id/action_mainFragment_to_userListFragment"></Preference>
+    <Preference
+        android:persistent="false"
+        android:title="@string/user_list"
+        android:widgetLayout="@id/action_mainFragment_to_userListFragment"></Preference>
+    <Preference
+        android:persistent="false"
+        android:title="@string/user_list"
+        android:widgetLayout="@id/action_mainFragment_to_userListFragment"></Preference>
+    <Preference
+        android:persistent="false"
+        android:title="@string/user_list"
+        android:widgetLayout="@id/action_mainFragment_to_userListFragment"></Preference>
+    <Preference
+        android:persistent="false"
+        android:title="@string/user_list"
+        android:widgetLayout="@id/action_mainFragment_to_userListFragment"></Preference>
+    <Preference
+        android:persistent="false"
+        android:title="@string/user_list"
+        android:widgetLayout="@id/action_mainFragment_to_userListFragment"></Preference>
+    <Preference
+        android:persistent="false"
+        android:title="@string/user_list"
+        android:widgetLayout="@id/action_mainFragment_to_userListFragment"></Preference>
+    <Preference
+        android:persistent="false"
+        android:title="@string/user_list"
+        android:widgetLayout="@id/action_mainFragment_to_userListFragment"></Preference>
+    <Preference
+        android:persistent="false"
+        android:title="@string/user_list"
+        android:widgetLayout="@id/action_mainFragment_to_userListFragment"></Preference>
+    <Preference
+        android:persistent="false"
+        android:title="@string/user_list"
+        android:widgetLayout="@id/action_mainFragment_to_userListFragment"></Preference>
+    <Preference
+        android:persistent="false"
+        android:title="@string/user_list"
+        android:widgetLayout="@id/action_mainFragment_to_userListFragment"></Preference>
+    <Preference
+        android:persistent="false"
+        android:title="@string/user_list"
+        android:widgetLayout="@id/action_mainFragment_to_userListFragment"></Preference>
+    <Preference
+        android:persistent="false"
+        android:title="@string/user_list"
+        android:widgetLayout="@id/action_mainFragment_to_userListFragment"></Preference>
+    <Preference
+        android:persistent="false"
+        android:title="@string/user_list"
+        android:widgetLayout="@id/action_mainFragment_to_userListFragment"></Preference>
+    <Preference
+        android:persistent="false"
+        android:title="@string/user_list"
+        android:widgetLayout="@id/action_mainFragment_to_userListFragment"></Preference>
 
 </PreferenceScreen>
