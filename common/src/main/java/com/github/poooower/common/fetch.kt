@@ -16,6 +16,9 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
+import org.jetbrains.anko.coroutines.experimental.bg
 
 class State(val state: Int = OK, val msg: String = "", val msgRes: Int = 0) {
 
@@ -97,22 +100,18 @@ abstract class FetchViewModel<T> : BaseViewModel() {
         }
     }
 
-    fun fetchInternal() {
+    private fun fetchInternal() {
         val lastState = state.value
-        bg {
+        async(UI) {
             try {
                 val t = fetch()
-                ifActive {
-                    state.value?.checkSame(lastState) {
-                        afterFetch(t)
-                        state.postValue(State(state = State.OK))
-                    }
+                if (!cleared && state.value == lastState) {
+                    afterFetch(t)
+                    state.value = State(state = State.OK)
                 }
             } catch (e: Exception) {
-                ifActive {
-                    state.value?.checkSame(lastState) {
-                        state.postValue(State(state = State.LOAD_ERR))
-                    }
+                if (!cleared && state.value == lastState) {
+                    state.value = State(state = State.LOAD_ERR)
                 }
             }
         }
@@ -121,10 +120,10 @@ abstract class FetchViewModel<T> : BaseViewModel() {
     abstract fun createLiveData(): LiveData<T>
 
     @WorkerThread
-    abstract fun fetch(): T
+    abstract suspend fun fetch(): T
 
     @WorkerThread
-    abstract fun afterFetch(t: T)
+    abstract suspend fun afterFetch(t: T)
 }
 
 abstract class FetchWithPagedListViewModel<T> : BaseViewModel() {

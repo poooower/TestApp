@@ -8,13 +8,13 @@ import com.github.poooower.common.io
 class UserViewModel : FetchWithPagedListViewModel<User>() {
     override fun createDataSource(): DataSource.Factory<*, User> = userDao.findPageUsers()
 
-    override fun fetch(user: User?): List<User> {
+    override fun fetch(lastItem: User?): List<User> {
         Thread.sleep(3000)
         val list = mutableListOf<User>()
         for (i in 1..10) {
             list.add(User(firstName = "first", lastName = "last"))
         }
-        user?.let { throw RuntimeException("fetch error") }
+        lastItem?.let { throw RuntimeException("fetch error") }
         return list
     }
 

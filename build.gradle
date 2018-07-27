@@ -3,7 +3,8 @@
 buildscript {
     ext.support_version = '27.1.1'
     ext.constraint_version = '1.1.0'
-    ext.kotlin_version = '1.2.41'
+    ext.kotlin_version = '1.2.51'
+    ext.anko_version = '0.10.5'
     ext.androidx_version = '1.0.0-alpha1'
     ext.androidx_nav_version = '1.0.0-alpha01'
     ext.androidx_lifecycle_version = '1.1.1'
@@ -11,17 +12,16 @@ buildscript {
     ext.androidx_paging_version = '1.0.0'
 
     repositories {
-//        google()
-//        jcenter()
-        maven{ url 'http://maven.aliyun.com/nexus/content/repositories/google'}
-        maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
         google()
+        jcenter()
+//        maven{ url 'http://maven.aliyun.com/nexus/content/repositories/google'}
+//        maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.0-alpha16'
+        classpath 'com.android.tools.build:gradle:3.3.0-alpha03'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:$androidx_nav_version"
-        classpath 'com.archinamon:android-gradle-aspectj:3.2.0'
+//        classpath 'com.archinamon:android-gradle-aspectj:3.2.0'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -30,10 +30,10 @@ buildscript {
 
 allprojects {
     repositories {
-//        google()
-//        jcenter()
-        maven{ url 'http://maven.aliyun.com/nexus/content/repositories/google'}
-        maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
+        google()
+        jcenter()
+//        maven{ url 'http://maven.aliyun.com/nexus/content/repositories/google'}
+//        maven{ url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
     }
 }
 

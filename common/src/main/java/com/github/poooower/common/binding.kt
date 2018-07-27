@@ -77,6 +77,7 @@ fun setSwipeDeleteFunc(recyclerView: RecyclerView, swipeListener: Function1<Int,
             }
         }).attachToRecyclerView(recyclerView)
     }
+    System.currentTimeMillis()
 }
 
 @SuppressLint("RestrictedApi")
@@ -92,29 +93,36 @@ fun setIsRefreshing(refreshLayout: SwipeRefreshLayout, isRefreshing: Boolean) {
     }
 }
 
-@BindingAdapter(value = ["fragmentManager", "fragments", "fragmentArgs"], requireAll = true)
-fun setFragmentTabs(bottomNavigationView: BottomNavigationView, fragmentManager: FragmentManager, fragments: Array<Class<out Fragment>>, fragmentArgs: Array<Bundle>?) {
+@BindingAdapter(value = ["fragmentManager", "container", "fragments", "fragmentArgs"], requireAll = true)
+fun setFragmentNavs(bottomNavigationView: BottomNavigationView, fragmentManager: FragmentManager, container: Int, fragments: Array<Class<out Fragment>>, fragmentArgs: Array<Bundle>?) {
     bottomNavigationView.parent?.let {
-        val tabHost = (it as View).findViewById<FragmentTabHostForDataBinding>(android.R.id.tabhost)
-        if (tabHost.tabWidget != null) {
-            return
-        }
-
-        with(tabHost) {
-            setup(context, fragmentManager, android.R.id.tabcontent)
-            for ((i, f) in fragments.withIndex()) {
-                addTab(newTabSpec("maintab_${f.name}").setIndicator(View(context)), f, fragmentArgs?.getOrNull(i))
-            }
-            finishIfNeedRestore()
-        }
-        val menu = bottomNavigationView.menu
+        // todo 需要处理savestate情况
+        var lastIndex = -1
         bottomNavigationView.setOnNavigationItemSelectedListener {
+            val transaction = fragmentManager.beginTransaction()
+            fragments.getOrNull(lastIndex)?.let {
+                fragmentManager.findFragmentByTag("nav_${it.name}")?.let {
+                    transaction.hide(it)
+                }
+            }
+
+
+            val menu = bottomNavigationView.menu
             for (i in 0 until (Math.min(menu.size(), fragments?.size ?: 0))) {
                 if (it === menu.getItem(i)) {
-                    tabHost.currentTab = i
+                    val f = fragmentManager.findFragmentByTag("nav_${fragments[i].name}")
+                            ?: fragments[i].newInstance().let {
+                                it.arguments = fragmentArgs?.get(i)
+                                transaction.add(container, it, "nav_${fragments[i].name}")
+                                it
+                            }
+                    transaction.show(f)
+                    lastIndex = i
                     break
                 }
             }
+
+            transaction.commit()
             true
         }
     }

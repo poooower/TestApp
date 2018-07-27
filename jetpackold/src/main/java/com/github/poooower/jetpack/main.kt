@@ -20,28 +20,26 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.navigation.Navigation.findNavController
 import androidx.navigation.navOptions
-import com.github.poooower.common.ItemBinder
-import com.github.poooower.common.app
-import com.github.poooower.common.oneShortPreDraw
+import com.github.poooower.common.*
+import com.github.poooower.common.App
 import com.github.poooower.jetpack.databinding.FragmentHomeBinding
 import com.github.poooower.jetpack.databinding.FragmentMainBinding
 import com.github.poooower.jetpack.databinding.FragmentUserListBinding
 
 
-class App : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        app = this
-    }
-}
+class App : App()
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        oneShortPreDraw(window.decorView) {
-            window.setBackgroundDrawable(null)
+        oneShotPreDraw(window.decorView) {
+            window.setBackgroundDrawableResource(android.R.color.transparent)
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
     }
 }
 
@@ -49,35 +47,34 @@ class MainFragment : Fragment() {
     val fragments: Array<Class<out Fragment>> = arrayOf(HomeFragment::class.java, DiscoverFragment::class.java, MeFragment::class.java)
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = FragmentMainBinding.inflate(inflater, container, false).let {
         it.mainFragment = this
+        it.executePendingBindings()
         return it.root
     }
 }
 
 class HomeFragment : Fragment() {
-    val titles: Array<String> = Array(10) {
+    companion object {
+        const val COUNT = 3
+    }
+
+    val titles: Array<String> = Array(COUNT) {
         "Title$it"
     }
 
-    val arguments: Array<Bundle> = Array(10) {
+    val arguments: Array<Bundle> = Array(COUNT) {
         val args = Bundle()
         args.putString("pageIndex", "$it")
         args
     }
 
-    val fragments: Array<Class<out Fragment>> = Array(10) {
+    val fragments: Array<Class<out Fragment>> = Array(COUNT) {
         HomePageFragment::class.java
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = FragmentHomeBinding.inflate(inflater, container, false).let {
         it.homeFragment = this
+        it.executePendingBindings()
         return it.root
-    }
-
-    override fun onCreateAnimator(transit: Int, enter: Boolean, nextAnim: Int): Animator? {
-        if (!enter && parentFragment?.isRemoving == true) {
-            return AnimatorInflater.loadAnimator(app, R.animator.stay)
-        }
-        return super.onCreateAnimator(transit, enter, nextAnim)
     }
 }
 
@@ -99,24 +96,21 @@ class HomePageFragment : PreferenceFragmentCompat() {
         return when (actionId) {
             0 -> super.onPreferenceTreeClick(preference)
             else -> view?.let {
+                val time = System.currentTimeMillis()
+                activity?.findViewById<NavContainer>(R.id.main_nav_host_fragment)?.navigating = true
                 findNavController(it).navigate(actionId, null, navOptions {
                     anim {
-                        enter = R.anim.slide_out_right
+                        enter = R.anim.slide_in_right
                         exit = R.animator.stay
                         popEnter = R.animator.stay
                         popExit = R.anim.slide_out_right
                     }
                 })
+                activity?.findViewById<NavContainer>(R.id.main_nav_host_fragment)?.navigating = false
+                println("XXXX${System.currentTimeMillis() - time}")
                 true
             } ?: true
         }
-    }
-
-    override fun onCreateAnimator(transit: Int, enter: Boolean, nextAnim: Int): Animator? {
-        if (!enter && parentFragment?.isRemoving == true) {
-            return AnimatorInflater.loadAnimator(app, R.animator.stay)
-        }
-        return super.onCreateAnimator(transit, enter, nextAnim)
     }
 }
 
