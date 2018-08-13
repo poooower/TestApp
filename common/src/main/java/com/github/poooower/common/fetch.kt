@@ -1,44 +1,47 @@
 package com.github.poooower.common
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.Transformations
+import android.arch.lifecycle.*
 import android.arch.paging.DataSource
 import android.arch.paging.LivePagedListBuilder
 import android.arch.paging.PagedList
 import android.arch.paging.PagedListAdapter
 import android.databinding.DataBindingUtil
 import android.databinding.ViewDataBinding
-import android.support.annotation.WorkerThread
+import android.os.SystemClock
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
-import org.jetbrains.anko.coroutines.experimental.bg
 
-class State(val state: Int = OK, val msg: String = "", val msgRes: Int = 0) {
+class State constructor(val state: Int = STATE_OK, private val msg: String = "", private val msgRes: Int = 0) {
 
     companion object {
-        const val OK = 0
-        const val EMPTY = 1
-        const val LOADING = 2
-        const val LOAD_ERR = 3
-        const val LOADING_MORE = 4
-        const val LOAD_MORE_ERR = 5
-        const val LOAD_MORE_COMPLETE = 6
+        const val STATE_OK = 0
+        const val STATE_EMPTY = 1
+        const val STATE_LOADING = 2
+        const val STATE_LOAD_ERR = 3
+        const val STATE_LOADING_MORE = 4
+        const val STATE_LOAD_MORE_ERR = 5
+        const val STATE_LOAD_MORE_COMPLETE = 6
+
+        val OK = State(state = STATE_OK)
+        val EMPTY = State(state = STATE_EMPTY)
+        val LOADING = State(state = STATE_LOADING)
+        val LOAD_ERR = State(state = STATE_LOAD_ERR)
+        val LOADING_MORE = State(state = STATE_LOADING_MORE)
+        val LOAD_MORE_ERR = State(state = STATE_LOAD_MORE_ERR)
+        val LOAD_MORE_COMPLETE = State(state = STATE_LOAD_MORE_COMPLETE)
     }
 
-    val isOK get() = state == OK
-    val isEmpty get() = state == EMPTY
-    val isLoading get() = state == LOADING
-    val isLoadErr get() = state == LOAD_ERR
-    val isLoadingMore get() = state == LOADING_MORE
-    val isLoadMoreErr get() = state == LOAD_MORE_ERR
-    val isLoadMoreComplete get() = state == LOAD_MORE_COMPLETE
+    val isOK get() = state == STATE_OK
+    val isEmpty get() = state == STATE_EMPTY
+    val isLoading get() = state == STATE_LOADING
+    val isLoadErr get() = state == STATE_LOAD_ERR
+    val isLoadingMore get() = state == STATE_LOADING_MORE
+    val isLoadMoreErr get() = state == STATE_LOAD_MORE_ERR
+    val isLoadMoreComplete get() = state == STATE_LOAD_MORE_COMPLETE
     val isShowContent get() = !isEmpty && !isLoadErr && !isLoading
     val isShowMore get() = isLoadingMore || isLoadMoreComplete || isLoadMoreErr
     val message
@@ -62,92 +65,112 @@ class State(val state: Int = OK, val msg: String = "", val msgRes: Int = 0) {
             }
         }
 
-    fun checkLoading(func: () -> Unit) {
-        if (isLoading) {
-            return
-        }
-        func()
+    inline fun withMessage(msg: String = "", msgRes: Int = 0): State = State(state, msg, msgRes)
+
+    inline fun checkLoading(crossinline func: () -> Unit) {
+        if (!isLoading) func() else return
     }
 
-    fun checkLoadingMore(func: () -> Unit) {
-        if (isLoadingMore) {
-            return
-        }
-        func()
-    }
-
-    fun checkSame(another: State?, func: () -> Unit) {
-        if (another === this) {
-            func()
-        }
+    inline fun checkLoadingMore(crossinline func: () -> Unit) {
+        if (!isLoadingMore) func() else return
     }
 }
 
-abstract class FetchViewModel<T> : BaseViewModel() {
-    val state: MutableLiveData<State> = MutableLiveData<State>().also {
-        it.value = State(state = State.OK)
-//        it.observeForever {
-//            println("XXXX${it?.state}")
-//        }
-    }
+internal interface StateHolder {
+    val state: LiveData<State>
+}
+
+internal class StateValidator(val version: Int, private val holder: StateHolder) {
+    constructor(state: LiveData<State>, holder: StateHolder) : this(state.v, holder)
+
+    val isValid
+        get() = version === holder.state.v
+
+}
+
+abstract class FetchViewModel<T> : BaseViewModel(), Observer<State>, StateHolder {
 
     val data: LiveData<T> by lazy {
         Transformations.map(createLiveData()) {
             if (it == null) {
-                fetchInternal()
+                state.value = State.LOADING
             }
             return@map it
         }
     }
 
-    private fun fetchInternal() {
-        val lastState = state.value
-        async(UI) {
-            try {
-                val t = fetch()
-                if (!cleared && state.value == lastState) {
+
+    override val state = MutableLiveData<State>().apply {
+        value = State.OK
+        if (!cleared) {
+            observeForever(this@FetchViewModel)
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        state.removeObserver(this)
+    }
+
+    override fun onChanged(t: State?) {
+        state?.let {
+            onStateChanged()
+        }
+    }
+
+    open fun onStateChanged() {
+        val ss = state.value ?: return
+        when {
+            ss.isLoading -> {
+                doOnLoading(StateValidator(state, this@FetchViewModel))
+            }
+            else -> {
+            }
+        }
+    }
+
+    private fun doOnLoading(sc: StateValidator) = ui {
+        try {
+            val t = bg { fetch() }
+
+
+            if (sc.isValid) {
+                bg {
                     afterFetch(t)
-                    state.value = State(state = State.OK)
-                }
-            } catch (e: Exception) {
-                if (!cleared && state.value == lastState) {
-                    state.value = State(state = State.LOAD_ERR)
+                    SystemClock.sleep(200)
                 }
             }
+
+            if (sc.isValid) {
+                state.value = if (t is List<*> && t.isEmpty()) State.EMPTY else State.OK
+            }
+
+        } catch (e: Exception) {
+            state.value = State.LOAD_ERR
         }
     }
 
     abstract fun createLiveData(): LiveData<T>
 
-    @WorkerThread
-    abstract suspend fun fetch(): T
+    abstract fun fetch(): T
 
-    @WorkerThread
-    abstract suspend fun afterFetch(t: T)
+    abstract fun afterFetch(t: T)
 }
 
-abstract class FetchWithPagedListViewModel<T> : BaseViewModel() {
-    val state: MutableLiveData<State> = MutableLiveData<State>().also {
-        it.value = State(state = State.OK)
-//        it.observeForever {
-//            println("XXXX${it?.state}")
-//        }
-    }
+abstract class FetchWithPagedListViewModel<T> : FetchViewModel<List<T>>() {
 
     private var itemAtEnd: T? = null
 
     fun refresh() {
         state.value?.checkLoading {
-            state.value = State(state = State.LOADING)
-            fetchInternal(null)
+            state.value = State.LOADING
         }
     }
 
     fun loadMore() {
         itemAtEnd?.let {
             state.value?.checkLoadingMore {
-                state.value = State(state = State.LOADING_MORE)
-                fetchInternal(it)
+                state.value = State.LOADING_MORE
             }
         }
     }
@@ -160,9 +183,13 @@ abstract class FetchWithPagedListViewModel<T> : BaseViewModel() {
                         refresh()
                     }
 
+                    override fun onItemAtFrontLoaded(itemAtFront: T) {
+                        super.onItemAtFrontLoaded(itemAtFront)
+                    }
+
                     override fun onItemAtEndLoaded(itemAtEnd: T) {
                         this@FetchWithPagedListViewModel.itemAtEnd = itemAtEnd
-                        if (!state.value!!.isLoadMoreErr && !state.value!!.isLoadMoreComplete) {
+                        if (state.value?.isLoadMoreErr != true && state.value?.isLoadMoreComplete != true) {
                             loadMore()
                         }
                     }
@@ -170,30 +197,34 @@ abstract class FetchWithPagedListViewModel<T> : BaseViewModel() {
                 .build()
     }
 
-    fun fetchInternal(lastItem: T?) {
-        val loadingMore = lastItem != null
-        val lastState = state.value
-        bg {
-            try {
-                val l = fetch(lastItem)
-                ifActive {
-                    state.value?.checkSame(lastState) {
-                        afterFetch(loadingMore, l)
-                        val newState = if (loadingMore) {
-                            if (l.isEmpty()) State.LOAD_MORE_COMPLETE else State.OK
-                        } else {
-                            if (l.isEmpty()) State.EMPTY else State.OK
-                        }
-                        state.postValue(State(state = newState))
-                    }
-                }
-            } catch (e: Exception) {
-                ifActive {
-                    state.value?.checkSame(lastState) {
-                        state.postValue(State(state = (if (loadingMore) State.LOAD_MORE_ERR else State.LOAD_ERR)))
-                    }
+    override fun onStateChanged() {
+        val ss = state.value ?: return
+        when {
+            ss.isLoadingMore -> {
+                itemAtEnd?.let {
+                    doOnLoadingMore(it, StateValidator(state, this@FetchWithPagedListViewModel))
                 }
             }
+            else -> {
+                super.onStateChanged()
+            }
+        }
+    }
+
+    private fun doOnLoadingMore(lastItem: T, sc: StateValidator) = ui {
+        try {
+            val t = bg { fetchMore(lastItem) }
+            if (sc.isValid) {
+                bg {
+                    afterFetchMore(t)
+                }
+            }
+
+            if (sc.isValid) {
+                state.value = if (t.isEmpty()) State.LOAD_MORE_COMPLETE else State.OK
+            }
+        } catch (e: Exception) {
+            state.value = State.LOAD_MORE_ERR
         }
     }
 
@@ -203,12 +234,30 @@ abstract class FetchWithPagedListViewModel<T> : BaseViewModel() {
             .setEnablePlaceholders(true)
             .build()
 
+    override fun createLiveData(): LiveData<List<T>> {
+        throw Exception("should not call this")
+    }
+
     abstract fun createDataSource(): DataSource.Factory<*, T>
 
-    @WorkerThread
+    override fun fetch(): List<T> {
+        return fetch(null)
+    }
+
+    override fun afterFetch(list: List<T>) {
+        afterFetch(false, list)
+    }
+
+    private fun fetchMore(lastItem: T): List<T> {
+        return fetch(lastItem)
+    }
+
+    private fun afterFetchMore(list: List<T>) {
+        afterFetch(true, list)
+    }
+
     abstract fun fetch(lastItem: T?): List<T>
 
-    @WorkerThread
     abstract fun afterFetch(loadingMore: Boolean, list: List<T>)
 
 

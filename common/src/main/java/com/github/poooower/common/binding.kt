@@ -50,6 +50,7 @@ fun <T : Id<*>> setPagedList(recyclerView: RecyclerView, itemBinder: ItemBinder?
                 recyclerView.adapter = it
             })
             ).also {
+        recyclerView.itemAnimator = null
         with(recyclerView.adapter as FetchPagedListAdapter<T>) {
             submitList(list)
             this.state = state

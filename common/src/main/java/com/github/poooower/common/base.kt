@@ -1,6 +1,7 @@
 package com.github.poooower.common
 
 import android.app.Application
+import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import android.content.Context
 import android.content.res.Resources
@@ -32,12 +33,6 @@ open class BaseViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         cleared = true
-    }
-
-    fun ifActive(func: () -> Unit) {
-        if (!cleared) {
-            func()
-        }
     }
 }
 

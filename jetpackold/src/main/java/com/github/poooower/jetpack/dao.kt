@@ -6,6 +6,9 @@ import android.arch.persistence.room.*
 import android.content.Context
 import com.github.poooower.common.Singleton
 import com.github.poooower.common.app
+import java.nio.file.Files.delete
+import android.arch.persistence.room.Transaction
+
 
 val appDatabase
     get() = AppDatabase.get(app)
@@ -45,4 +48,10 @@ interface UserDao {
 
     @Query("SELECT * FROM user")
     fun findPageUsers(): DataSource.Factory<Int, User>
+
+    @Transaction
+    fun refresh(users: List<User>) {
+        deleteAll()
+        insert(users)
+    }
 }

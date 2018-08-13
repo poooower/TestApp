@@ -35,21 +35,9 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation "com.android.support:appcompat-v7:$support_version"
-    implementation "com.android.support:design:$support_version"
-    implementation "com.android.support:preference-v7:$support_version"
-    implementation "com.android.support.constraint:constraint-layout:$constraint_version"
-    implementation "android.arch.navigation:navigation-fragment-ktx:$androidx_nav_version"
-    implementation "android.arch.lifecycle:runtime:$androidx_lifecycle_version"
-    implementation "android.arch.lifecycle:extensions:$androidx_lifecycle_version"
-    kapt "android.arch.lifecycle:compiler:$androidx_lifecycle_version"
-    implementation "android.arch.persistence.room:runtime:$androidx_room_version"
-    kapt "android.arch.persistence.room:compiler:$androidx_room_version"
-    implementation "android.arch.paging:runtime:$androidx_paging_version"
-    implementation 'me.tatarka.bindingcollectionadapter2:bindingcollectionadapter:2.3.0-beta1'
-    implementation 'me.tatarka.bindingcollectionadapter2:bindingcollectionadapter-recyclerview:2.3.0-beta1'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     implementation project(':common')
+    kapt "android.arch.lifecycle:compiler:$androidx_lifecycle_version"
+    kapt "android.arch.persistence.room:compiler:$androidx_room_version"
 }

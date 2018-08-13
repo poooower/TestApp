@@ -2,7 +2,7 @@ package com.github.poooower.jetpack
 
 import android.arch.paging.DataSource
 import com.github.poooower.common.FetchWithPagedListViewModel
-import com.github.poooower.common.io
+import org.jetbrains.anko.coroutines.experimental.bg
 
 
 class UserViewModel : FetchWithPagedListViewModel<User>() {
@@ -14,24 +14,25 @@ class UserViewModel : FetchWithPagedListViewModel<User>() {
         for (i in 1..10) {
             list.add(User(firstName = "first", lastName = "last"))
         }
-        lastItem?.let { throw RuntimeException("fetch error") }
+//        lastItem?.let { throw RuntimeException("fetch error") }
         return list
     }
 
     override fun afterFetch(loadingMore: Boolean, list: List<User>) {
-        if (!loadingMore) {
-            userDao.deleteAll()
+        if (loadingMore) {
+            userDao.insert(list)
+        } else {
+            userDao.refresh(list)
         }
-        userDao.insert(list)
     }
 
 
-    fun addUser() = io {
+    fun addUser() = bg {
         userDao.insert(User(firstName = "first", lastName = "last"))
     }
 
     fun deleteUser(pos: Int) = list.value?.get(pos)?.let {
-        io {
+        bg {
             userDao.deleteUser(it.id!!)
         }
     }

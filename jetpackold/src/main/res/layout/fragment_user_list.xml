@@ -1,60 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:bind="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:bind="http://schemas.android.com/tools">
 
     <data>
 
-        <import type="android.view.View"/>
+        <import type="android.view.View" />
+
         <variable
             name="fragment"
-            type="com.github.poooower.jetpack.UserListFragment"/>
+            type="com.github.poooower.jetpack.UserListFragment" />
 
     </data>
 
-    <android.support.v4.widget.SwipeRefreshLayout android:layout_width="match_parent"
-                                                  android:layout_height="match_parent"
-                                                  android:background="@android:color/white"
-                                                  app:isRefreshing="@{fragment.userViewModel.state.isLoading}"
-                                                  app:onRefreshListener="@{fragment.onRefreshListener}">
+    <android.support.v4.widget.ScrollSwipeRefreshLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        app:isRefreshing="@{fragment.userViewModel.state.isLoading}"
+        app:onRefreshListener="@{fragment.onRefreshListener}">
 
-        <RelativeLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            app:visibilityWithFade="@{fragment.userViewModel.state.isShowContent || !fragment.userViewModel.list.isEmpty() ? View.VISIBLE : View.GONE}">
+            android:layout_height="match_parent">
 
-            <LinearLayout
-                android:id="@+id/btn_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true">
-
-                <Button
-                    android:id="@android:id/button1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="@{fragment::addUser}"
-                    android:text="@string/add_user"/>
-
-            </LinearLayout>
-
-            <android.support.v7.widget.RecyclerView
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_above="@id/btn_container"
-                app:itemBinder="@{fragment.itemBinder}"
-                app:list="@{fragment.userViewModel.list}"
-                app:moreClicker="@{fragment.moreClicker}"
-                app:state="@{fragment.userViewModel.state}"
-                app:swipeListener="@{fragment.swipeListener}"/>
+                android:visibility="gone"
+                app:visibilityWithFade="@{fragment.userViewModel.state.isShowContent || !fragment.userViewModel.list.isEmpty() ? View.VISIBLE : View.GONE}">
+
+                <LinearLayout
+                    android:id="@+id/btn_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true">
+
+                    <Button
+                        android:id="@android:id/button1"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:onClick="@{fragment::addUser}"
+                        android:text="@string/add_user" />
+
+                </LinearLayout>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_above="@id/btn_container"
+                    app:itemBinder="@{fragment.itemBinder}"
+                    app:list="@{fragment.userViewModel.list}"
+                    app:moreClicker="@{fragment.moreClicker}"
+                    app:state="@{fragment.userViewModel.state}"
+                    app:swipeListener="@{fragment.swipeListener}" />
 
 
-        </RelativeLayout>
+            </RelativeLayout>
 
-        <include layout="@layout/poco_load_state_layout"
-                 bind:hasContent="@{!fragment.userViewModel.list.isEmpty()}"
-                 bind:state="@{fragment.userViewModel.state}"/>
-    </android.support.v4.widget.SwipeRefreshLayout>
+            <include
+                layout="@layout/poco_load_state_layout"
+                bind:hasContent="@{!fragment.userViewModel.list.isEmpty()}"
+                bind:state="@{fragment.userViewModel.state}" />
+        </FrameLayout>
+    </android.support.v4.widget.ScrollSwipeRefreshLayout>
 </layout>
